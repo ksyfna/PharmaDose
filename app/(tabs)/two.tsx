@@ -86,32 +86,48 @@ export default function RenalScreen() {
   const crclStatus = calculatedCrcl !== null ? getCrclStatus(calculatedCrcl) : null;
 
   return (
-    <LinearGradient colors={['#F0FDF4', '#DCFCE7']} style={styles.container}>
+    <LinearGradient colors={['#F8FAFC', '#F1F5F9']} style={styles.container}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           
           <View style={styles.header}>
             <View style={styles.iconContainer}>
-              <Activity color="#16A34A" size={32} />
+              <Activity color="#10B981" size={32} />
             </View>
             <Text style={styles.title}>Renal Adjustment</Text>
-            <Text style={styles.subtitle}>CrCl Dashboard</Text>
           </View>
 
-          <View style={styles.card}>
+          {/* HERO CARD (RESULTS) */}
+          {result && (
+            <LinearGradient 
+              colors={result.status === 'CONTRAINDICATED' ? ['#FEF2F2', '#FEE2E2'] : ['#ECFDF5', '#D1FAE5']} 
+              style={[styles.heroCard, { borderColor: result.status === 'CONTRAINDICATED' ? '#FECACA' : '#A7F3D0', shadowColor: result.status === 'CONTRAINDICATED' ? '#EF4444' : '#10B981' }]}
+            >
+              <Text style={styles.resultTitle}>Dosing Recommendation</Text>
+
+              <View style={styles.resultHeaderRow}>
+                {result.icon === 'ShieldAlert' && <ShieldAlert color={result.color} size={36} />}
+                {result.icon === 'AlertTriangle' && <AlertTriangle color={result.color} size={36} />}
+                {result.icon === 'CheckCircle' && <CheckCircle color={result.color} size={36} />}
+                <Text style={[styles.resultStatus, { color: result.color }]}>{result.status}</Text>
+              </View>
+              
+              <View style={[styles.divider, { backgroundColor: result.color + '40' }]} />
+              
+              <Text style={[styles.resultMsg, result.status === 'CONTRAINDICATED' && { color: '#B91C1C', fontWeight: '700' }]}>{result.msg}</Text>
+            </LinearGradient>
+          )}
+
+          {/* INPUT CARD */}
+          <View style={styles.neumorphicCard}>
+
             <View style={styles.typeSelector}>
-              <TouchableOpacity
-                style={[styles.typeBtn, patientType === 'adult' && styles.typeBtnActive]}
-                onPress={() => setPatientType('adult')}
-              >
-                <User color={patientType === 'adult' ? '#fff' : '#4B5563'} size={20} />
+              <TouchableOpacity style={[styles.typeBtn, patientType === 'adult' && styles.typeBtnActive]} onPress={() => setPatientType('adult')}>
+                <User color={patientType === 'adult' ? '#fff' : '#64748B'} size={20} />
                 <Text style={[styles.typeBtnText, patientType === 'adult' && styles.typeBtnTextActive]}>Adult (CG)</Text>
               </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.typeBtn, patientType === 'pediatric' && styles.typeBtnActive]}
-                onPress={() => setPatientType('pediatric')}
-              >
-                <Baby color={patientType === 'pediatric' ? '#fff' : '#4B5563'} size={20} />
+              <TouchableOpacity style={[styles.typeBtn, patientType === 'pediatric' && styles.typeBtnActive]} onPress={() => setPatientType('pediatric')}>
+                <Baby color={patientType === 'pediatric' ? '#fff' : '#64748B'} size={20} />
                 <Text style={[styles.typeBtnText, patientType === 'pediatric' && styles.typeBtnTextActive]}>Pediatric (Schwartz)</Text>
               </TouchableOpacity>
             </View>
@@ -121,11 +137,11 @@ export default function RenalScreen() {
                 <View style={styles.row}>
                   <View style={styles.flexHalf}>
                     <Text style={styles.label}>Age (yrs)</Text>
-                    <TextInput style={styles.input} keyboardType="numeric" placeholder="e.g. 65" value={age} onChangeText={setAge} />
+                    <TextInput style={styles.input} keyboardType="numeric" placeholder="e.g. 65" value={age} onChangeText={setAge} placeholderTextColor="#94A3B8" />
                   </View>
                   <View style={styles.flexHalf}>
                     <Text style={styles.label}>Weight (kg)</Text>
-                    <TextInput style={styles.input} keyboardType="decimal-pad" placeholder="e.g. 70" value={weight} onChangeText={setWeight} />
+                    <TextInput style={styles.input} keyboardType="decimal-pad" placeholder="e.g. 70" value={weight} onChangeText={setWeight} placeholderTextColor="#94A3B8" />
                   </View>
                 </View>
                 <Text style={styles.label}>Gender</Text>
@@ -141,12 +157,12 @@ export default function RenalScreen() {
             ) : (
               <View>
                 <Text style={styles.label}>Height (cm)</Text>
-                <TextInput style={styles.input} keyboardType="decimal-pad" placeholder="e.g. 110" value={height} onChangeText={setHeight} />
+                <TextInput style={styles.input} keyboardType="decimal-pad" placeholder="e.g. 110" value={height} onChangeText={setHeight} placeholderTextColor="#94A3B8" />
               </View>
             )}
 
             <Text style={styles.label}>Serum Creatinine (µmol/L)</Text>
-            <TextInput style={styles.input} keyboardType="decimal-pad" placeholder="e.g. 120" value={scr} onChangeText={setScr} />
+            <TextInput style={styles.input} keyboardType="decimal-pad" placeholder="e.g. 120" value={scr} onChangeText={setScr} placeholderTextColor="#94A3B8" />
 
             {calculatedCrcl !== null && crclStatus && (
               <View style={[styles.crclBox, { backgroundColor: crclStatus.bg, borderColor: crclStatus.color }]}>
@@ -157,40 +173,23 @@ export default function RenalScreen() {
                 <View style={[styles.crclDivider, { backgroundColor: crclStatus.color + '33' }]} />
                 <View style={styles.crclStatusRow}>
                   <Text style={[styles.crclStatusLabel, { color: crclStatus.color }]}>{crclStatus.label}</Text>
-                  <Text style={[styles.crclStatusMsg, { color: '#4B5563' }]}>{crclStatus.msg}</Text>
+                  <Text style={[styles.crclStatusMsg, { color: '#475569' }]}>{crclStatus.msg}</Text>
                 </View>
               </View>
             )}
           </View>
 
-          <View style={styles.card}>
+          <View style={styles.neumorphicCard}>
             <Text style={styles.label}>Select Medication for Adjustment</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.drugSelector}>
               {RENAL_DRUGS.map((drug) => (
-                <TouchableOpacity
-                  key={drug.id}
-                  style={[styles.drugPill, selectedDrug.id === drug.id && styles.drugPillActive]}
-                  onPress={() => setSelectedDrug(drug)}
-                >
-                  <Text style={[styles.drugPillText, selectedDrug.id === drug.id && styles.drugPillTextActive]}>
-                    {drug.name}
-                  </Text>
+                <TouchableOpacity key={drug.id} style={[styles.pill, selectedDrug.id === drug.id && styles.pillActive]} onPress={() => setSelectedDrug(drug)}>
+                  <Text style={[styles.pillText, selectedDrug.id === drug.id && styles.pillTextActive]}>{drug.name}</Text>
                 </TouchableOpacity>
               ))}
             </ScrollView>
 
-            {result ? (
-              <View style={[styles.resultCard, { borderColor: result.color, backgroundColor: result.status === 'CONTRAINDICATED' ? '#FEF2F2' : '#fff' }]}>
-                <View style={styles.resultHeaderRow}>
-                  {result.icon === 'ShieldAlert' && <ShieldAlert color={result.color} size={32} />}
-                  {result.icon === 'AlertTriangle' && <AlertTriangle color={result.color} size={32} />}
-                  {result.icon === 'CheckCircle' && <CheckCircle color={result.color} size={32} />}
-                  <Text style={[styles.resultStatus, { color: result.color, fontSize: result.status === 'CONTRAINDICATED' ? 22 : 20 }]}>{result.status}</Text>
-                </View>
-                <View style={[styles.divider, { backgroundColor: result.color + '33' }]} />
-                <Text style={[styles.resultMsg, result.status === 'CONTRAINDICATED' && { color: '#B91C1C', fontWeight: '700' }]}>{result.msg}</Text>
-              </View>
-            ) : (
+            {!result && (
                <View style={styles.placeholderBox}>
                   <Text style={styles.placeholderText}>Enter patient parameters to see dose adjustments.</Text>
                </View>
@@ -207,42 +206,46 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   scrollContent: { padding: 20, paddingBottom: 40 },
   header: { alignItems: 'center', marginBottom: 20, marginTop: 20 },
-  iconContainer: { width: 64, height: 64, borderRadius: 20, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', marginBottom: 12, shadowColor: '#16A34A', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.15, shadowRadius: 12, elevation: 5 },
-  title: { fontSize: 28, fontWeight: '800', color: '#1F2937', letterSpacing: -0.5 },
-  subtitle: { fontSize: 16, color: '#6B7280', marginTop: 4 },
-  card: { backgroundColor: '#fff', borderRadius: 24, padding: 20, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 10, elevation: 3, marginBottom: 20 },
-  typeSelector: { flexDirection: 'row', backgroundColor: '#F3F4F6', borderRadius: 12, padding: 4, marginBottom: 20 },
-  typeBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 10, borderRadius: 8, gap: 6 },
-  typeBtnActive: { backgroundColor: '#16A34A', shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 2 },
-  typeBtnText: { fontSize: 14, fontWeight: '600', color: '#4B5563' },
+  iconContainer: { width: 64, height: 64, borderRadius: 24, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', marginBottom: 12, shadowColor: '#10B981', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.15, shadowRadius: 20, elevation: 5 },
+  title: { fontSize: 26, fontWeight: '800', color: '#0F172A', letterSpacing: -0.5 },
+  
+  heroCard: { borderRadius: 28, padding: 24, shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.2, shadowRadius: 24, elevation: 8, marginBottom: 24, borderWidth: 1 },
+  resultTitle: { fontSize: 16, fontWeight: '700', color: '#475569', marginBottom: 16, textAlign: 'center', textTransform: 'uppercase', letterSpacing: 1 },
+  resultHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 10 },
+  resultStatus: { fontWeight: '900', fontSize: 26, marginLeft: 16, flexShrink: 1, textAlign: 'center' },
+  divider: { height: 1, marginVertical: 18 },
+  resultMsg: { fontSize: 16, color: '#334155', lineHeight: 24, fontWeight: '600', textAlign: 'center' },
+  
+  neumorphicCard: { backgroundColor: '#fff', borderRadius: 28, padding: 24, shadowColor: '#64748B', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.08, shadowRadius: 20, elevation: 4, marginBottom: 20, borderWidth: 1, borderColor: '#F1F5F9' },
+  typeSelector: { flexDirection: 'row', backgroundColor: '#F8FAFC', borderRadius: 16, padding: 6, marginBottom: 24, borderWidth: 1, borderColor: '#E2E8F0' },
+  typeBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 12, borderRadius: 12, gap: 8 },
+  typeBtnActive: { backgroundColor: '#10B981', shadowColor: '#10B981', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 3 },
+  typeBtnText: { fontSize: 14, fontWeight: '600', color: '#64748B' },
   typeBtnTextActive: { color: '#fff' },
-  row: { flexDirection: 'row', gap: 12, marginBottom: 16 },
+  row: { flexDirection: 'row', gap: 14, marginBottom: 16 },
   flexHalf: { flex: 1 },
-  label: { fontSize: 14, fontWeight: '600', color: '#374151', marginBottom: 8 },
-  input: { backgroundColor: '#F9FAFB', borderRadius: 12, padding: 14, fontSize: 16, color: '#1F2937', borderWidth: 1, borderColor: '#E5E7EB', marginBottom: 16 },
-  genderRow: { flexDirection: 'row', gap: 12, marginBottom: 20 },
-  genderBtn: { flex: 1, paddingVertical: 12, borderRadius: 12, borderWidth: 1, borderColor: '#E5E7EB', alignItems: 'center', backgroundColor: '#F9FAFB' },
-  genderBtnActive: { backgroundColor: '#DCFCE7', borderColor: '#22C55E' },
-  genderBtnText: { fontSize: 15, fontWeight: '600', color: '#4B5563' },
-  genderBtnTextActive: { color: '#15803D' },
-  crclBox: { marginTop: 8, padding: 16, borderRadius: 16, borderWidth: 2 },
-  crclHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  crclValue: { fontSize: 26, fontWeight: '800' },
+  label: { fontSize: 14, fontWeight: '600', color: '#64748B', marginBottom: 10 },
+  input: { backgroundColor: '#F8FAFC', borderRadius: 16, padding: 16, fontSize: 16, color: '#0F172A', borderWidth: 1, borderColor: '#E2E8F0', marginBottom: 20, fontWeight: '600' },
+  genderRow: { flexDirection: 'row', gap: 14, marginBottom: 24 },
+  genderBtn: { flex: 1, paddingVertical: 14, borderRadius: 16, borderWidth: 1, borderColor: '#E2E8F0', alignItems: 'center', backgroundColor: '#F8FAFC' },
+  genderBtnActive: { backgroundColor: '#ECFDF5', borderColor: '#34D399', shadowColor: '#34D399', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 1 },
+  genderBtnText: { fontSize: 15, fontWeight: '600', color: '#64748B' },
+  genderBtnTextActive: { color: '#059669' },
+  crclBox: { marginTop: 4, padding: 20, borderRadius: 20, borderWidth: 2 },
+  crclHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  crclValue: { fontSize: 30, fontWeight: '900' },
   crclUnit: { fontSize: 14, fontWeight: '600' },
-  crclDivider: { height: 1, marginVertical: 12 },
-  crclStatusRow: { flexDirection: 'column', gap: 4 },
-  crclStatusLabel: { fontSize: 16, fontWeight: '700' },
+  crclDivider: { height: 1, marginVertical: 14 },
+  crclStatusRow: { flexDirection: 'column', gap: 6 },
+  crclStatusLabel: { fontSize: 18, fontWeight: '800' },
   crclStatusMsg: { fontSize: 14, fontWeight: '500' },
-  drugSelector: { flexDirection: 'row', marginBottom: 16 },
-  drugPill: { paddingHorizontal: 16, paddingVertical: 10, backgroundColor: '#F3F4F6', borderRadius: 20, marginRight: 10 },
-  drugPillActive: { backgroundColor: '#16A34A' },
-  drugPillText: { fontSize: 14, fontWeight: '600', color: '#4B5563' },
-  drugPillTextActive: { color: '#fff' },
-  resultCard: { backgroundColor: '#fff', borderRadius: 16, padding: 20, borderWidth: 2, marginTop: 8 },
-  resultHeaderRow: { flexDirection: 'row', alignItems: 'center' },
-  resultStatus: { fontWeight: '800', marginLeft: 12, flexShrink: 1 },
-  divider: { height: 1, marginVertical: 16 },
-  resultMsg: { fontSize: 15, color: '#374151', lineHeight: 22, fontWeight: '500' },
-  placeholderBox: { backgroundColor: '#F9FAFB', padding: 20, borderRadius: 16, alignItems: 'center', borderWidth: 1, borderColor: '#E5E7EB', borderStyle: 'dashed', marginTop: 8 },
-  placeholderText: { color: '#9CA3AF', fontSize: 14, fontWeight: '500', textAlign: 'center' }
+  drugSelector: { flexDirection: 'row', marginBottom: 10 },
+  
+  pill: { paddingHorizontal: 18, paddingVertical: 12, backgroundColor: '#F8FAFC', borderRadius: 16, marginRight: 10, borderWidth: 1, borderColor: '#E2E8F0', flexDirection: 'row', alignItems: 'center', gap: 6 },
+  pillActive: { backgroundColor: '#10B981', borderColor: '#10B981', shadowColor: '#10B981', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 2 },
+  pillText: { fontSize: 14, fontWeight: '600', color: '#475569' },
+  pillTextActive: { color: '#fff' },
+  
+  placeholderBox: { backgroundColor: '#F8FAFC', padding: 24, borderRadius: 20, alignItems: 'center', borderWidth: 1, borderColor: '#E2E8F0', borderStyle: 'dashed', marginTop: 12 },
+  placeholderText: { color: '#94A3B8', fontSize: 15, fontWeight: '500', textAlign: 'center' }
 });

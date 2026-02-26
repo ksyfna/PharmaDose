@@ -24,7 +24,7 @@ export default function InsulinScreen() {
   const penfillsNeeded = isValid ? Math.ceil(monthlyUnits / penfillSize) : 0;
 
   return (
-    <LinearGradient colors={['#EFF6FF', '#DBEAFE']} style={styles.container}>
+    <LinearGradient colors={['#F8FAFC', '#F1F5F9']} style={styles.container}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           
@@ -33,10 +33,49 @@ export default function InsulinScreen() {
               <Syringe color="#2563EB" size={32} />
             </View>
             <Text style={styles.title}>Insulin Calculator</Text>
-            <Text style={styles.subtitle}>Monthly Penfill Estimation</Text>
           </View>
 
-          <View style={styles.card}>
+          {/* HERO CARD (RESULTS) */}
+          {isValid && (
+            <LinearGradient colors={['#EFF6FF', '#DBEAFE']} style={styles.heroCard}>
+              <Text style={styles.resultTitle}>Monthly Penfill Estimation</Text>
+
+              <View style={styles.resultRow}>
+                <View style={styles.resultItem}>
+                  <Text style={styles.resultLabel}>Total Units (30 Days)</Text>
+                  <Text style={styles.resultValueHighlight}>{monthlyUnits} <Text style={{fontSize: 16, fontWeight: '600'}}>IU</Text></Text>
+                  {includePriming && (
+                    <Text style={styles.resultSubValue}>Inc. {dailyPrimingWaste * 30} IU priming</Text>
+                  )}
+                </View>
+                <View style={styles.dividerVertical} />
+                <View style={styles.resultItem}>
+                  <Text style={styles.resultLabel}>Penfills Required</Text>
+                  <Text style={[styles.resultValueHighlight, {fontSize: 42}]}>{penfillsNeeded}</Text>
+                  <Text style={styles.resultSubValue}>Exact: {exactPenfills} pens</Text>
+                </View>
+              </View>
+
+              <View style={styles.divider} />
+              
+              <View style={styles.infoBox}>
+                <Text style={styles.infoText}>
+                  Dispense <Text style={{fontWeight: '800'}}>{penfillsNeeded} pen(s)</Text> for a 1-month supply.
+                </Text>
+              </View>
+
+              <View style={styles.warningBox}>
+                <AlertCircle color="#D97706" size={24} />
+                <View style={styles.warningTextContainer}>
+                  <Text style={styles.warningTitle}>28-Day Expiration</Text>
+                  <Text style={styles.warningText}>Discard pen 28 days after first use, regardless of remaining volume.</Text>
+                </View>
+              </View>
+            </LinearGradient>
+          )}
+
+          {/* INPUT CARD */}
+          <View style={styles.neumorphicCard}>
             <Text style={styles.label}>Patient's Total Daily Dose (IU)</Text>
             <TextInput
               style={styles.input}
@@ -44,7 +83,7 @@ export default function InsulinScreen() {
               placeholder="e.g. 40"
               value={dailyDose}
               onChangeText={setDailyDose}
-              placeholderTextColor="#A1A1AA"
+              placeholderTextColor="#94A3B8"
             />
 
             <View style={styles.primingSection}>
@@ -53,13 +92,13 @@ export default function InsulinScreen() {
                 <Switch
                   value={includePriming}
                   onValueChange={setIncludePriming}
-                  trackColor={{ false: '#D1D5DB', true: '#93C5FD' }}
-                  thumbColor={includePriming ? '#2563EB' : '#F3F4F6'}
+                  trackColor={{ false: '#E2E8F0', true: '#93C5FD' }}
+                  thumbColor={includePriming ? '#2563EB' : '#F8FAFC'}
                 />
               </View>
               {includePriming && (
                 <View style={styles.primingOptions}>
-                  <Text style={styles.subLabel}>Number of injections per day:</Text>
+                  <Text style={styles.subLabel}>Injections per day:</Text>
                   <View style={styles.injectionToggleRow}>
                     {[1, 2, 3, 4].map((num) => (
                       <TouchableOpacity
@@ -97,51 +136,6 @@ export default function InsulinScreen() {
             </View>
           </View>
 
-          {isValid && (
-            <View style={styles.resultCard}>
-              <View style={styles.resultRow}>
-                <View style={styles.resultIconBox}>
-                  <Calendar color="#3B82F6" size={24} />
-                </View>
-                <View style={styles.resultTextContainer}>
-                  <Text style={styles.resultLabel}>Total Units (30 Days)</Text>
-                  <Text style={styles.resultValue}>{monthlyUnits} <Text style={{fontSize: 16}}>IU</Text></Text>
-                  {includePriming && (
-                    <Text style={styles.resultSubValue}>Includes {dailyPrimingWaste * 30} IU priming waste</Text>
-                  )}
-                </View>
-              </View>
-              
-              <View style={styles.divider} />
-
-              <View style={styles.resultRow}>
-                <View style={[styles.resultIconBox, { backgroundColor: '#EFF6FF' }]}>
-                  <Package color="#2563EB" size={24} />
-                </View>
-                <View style={styles.resultTextContainer}>
-                  <Text style={styles.resultLabel}>Actual Penfills Required</Text>
-                  <Text style={styles.resultValueHighlight}>{penfillsNeeded} <Text style={{fontSize: 16}}>pen(s)</Text></Text>
-                  <Text style={styles.resultSubValue}>Exact Calculation: {exactPenfills} pens</Text>
-                </View>
-              </View>
-              
-              <View style={styles.infoBox}>
-                <Text style={styles.infoText}>
-                  Dispense <Text style={{fontWeight: '700'}}>{penfillsNeeded} pen(s)</Text> for a 1-month supply.
-                </Text>
-              </View>
-
-              <View style={styles.warningBox}>
-                <AlertCircle color="#D97706" size={20} style={{marginTop: 2}} />
-                <View style={styles.warningTextContainer}>
-                  <Text style={styles.warningTitle}>28-Day Expiration Warning</Text>
-                  <Text style={styles.warningText}>Ensure patient discards pen 28 days after first use or removal from fridge, regardless of remaining volume inside.</Text>
-                </View>
-              </View>
-
-            </View>
-          )}
-
         </ScrollView>
       </KeyboardAvoidingView>
     </LinearGradient>
@@ -151,43 +145,47 @@ export default function InsulinScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   scrollContent: { padding: 20, paddingBottom: 40 },
-  header: { alignItems: 'center', marginBottom: 24, marginTop: 20 },
-  iconContainer: { width: 64, height: 64, borderRadius: 20, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', marginBottom: 12, shadowColor: '#2563EB', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.15, shadowRadius: 12, elevation: 5 },
-  title: { fontSize: 28, fontWeight: '800', color: '#1F2937', letterSpacing: -0.5 },
-  subtitle: { fontSize: 16, color: '#6B7280', marginTop: 4 },
-  card: { backgroundColor: '#fff', borderRadius: 24, padding: 24, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 10, elevation: 3, marginBottom: 20 },
-  label: { fontSize: 15, fontWeight: '600', color: '#374151', marginBottom: 8 },
-  subLabel: { fontSize: 13, color: '#6B7280', marginBottom: 8 },
-  input: { backgroundColor: '#F3F4F6', borderRadius: 12, padding: 16, fontSize: 18, color: '#1F2937', marginBottom: 24, fontWeight: '500' },
-  primingSection: { backgroundColor: '#F8FAFC', borderRadius: 16, padding: 16, marginBottom: 24, borderWidth: 1, borderColor: '#E2E8F0' },
+  header: { alignItems: 'center', marginBottom: 20, marginTop: 20 },
+  iconContainer: { width: 64, height: 64, borderRadius: 24, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', marginBottom: 12, shadowColor: '#2563EB', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.15, shadowRadius: 20, elevation: 5 },
+  title: { fontSize: 26, fontWeight: '800', color: '#0F172A', letterSpacing: -0.5 },
+  
+  heroCard: { borderRadius: 28, padding: 24, shadowColor: '#2563EB', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.2, shadowRadius: 24, elevation: 8, marginBottom: 24, borderWidth: 1, borderColor: '#BFDBFE' },
+  resultTitle: { fontSize: 13, fontWeight: '700', color: '#3B82F6', marginBottom: 16, textAlign: 'center', textTransform: 'uppercase', letterSpacing: 1 },
+  resultRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
+  resultItem: { alignItems: 'center', flex: 1 },
+  dividerVertical: { width: 1, height: '80%', backgroundColor: '#BFDBFE', marginHorizontal: 10 },
+  resultLabel: { fontSize: 13, color: '#64748B', marginBottom: 4, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5, textAlign: 'center' },
+  resultValueHighlight: { fontSize: 34, fontWeight: '900', color: '#1D4ED8' },
+  resultSubValue: { fontSize: 12, color: '#64748B', marginTop: 4, fontWeight: '500' },
+  divider: { height: 1, backgroundColor: '#BFDBFE', marginVertical: 20 },
+  
+  infoBox: { backgroundColor: '#DBEAFE', padding: 14, borderRadius: 16, alignItems: 'center', marginBottom: 12 },
+  infoText: { color: '#1E3A8A', fontSize: 15 },
+  warningBox: { backgroundColor: '#FFFBEB', padding: 14, borderRadius: 16, flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#FDE68A' },
+  warningTextContainer: { flex: 1, marginLeft: 12 },
+  warningTitle: { color: '#B45309', fontWeight: '800', fontSize: 13, marginBottom: 2, textTransform: 'uppercase', letterSpacing: 0.5 },
+  warningText: { color: '#92400E', fontSize: 13, lineHeight: 18, fontWeight: '500' },
+  
+  neumorphicCard: { backgroundColor: '#fff', borderRadius: 28, padding: 24, shadowColor: '#64748B', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.08, shadowRadius: 20, elevation: 4, marginBottom: 20, borderWidth: 1, borderColor: '#F1F5F9' },
+  label: { fontSize: 14, fontWeight: '600', color: '#64748B', marginBottom: 10 },
+  subLabel: { fontSize: 13, color: '#94A3B8', marginBottom: 8, fontWeight: '500' },
+  input: { backgroundColor: '#F8FAFC', borderRadius: 16, padding: 18, fontSize: 18, color: '#0F172A', marginBottom: 24, fontWeight: '600', borderWidth: 1, borderColor: '#E2E8F0' },
+  
+  primingSection: { backgroundColor: '#F8FAFC', borderRadius: 20, padding: 16, marginBottom: 24, borderWidth: 1, borderColor: '#E2E8F0' },
   primingHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   primingOptions: { marginTop: 16, paddingTop: 16, borderTopWidth: 1, borderColor: '#E2E8F0' },
-  injectionToggleRow: { flexDirection: 'row', gap: 8, marginBottom: 8 },
-  injectionBtn: { flex: 1, paddingVertical: 10, alignItems: 'center', borderRadius: 8, backgroundColor: '#fff', borderWidth: 1, borderColor: '#E2E8F0' },
-  injectionBtnActive: { backgroundColor: '#DBEAFE', borderColor: '#3B82F6' },
-  injectionBtnText: { fontSize: 15, fontWeight: '600', color: '#64748B' },
+  injectionToggleRow: { flexDirection: 'row', gap: 10, marginBottom: 10 },
+  injectionBtn: { flex: 1, paddingVertical: 12, alignItems: 'center', borderRadius: 12, backgroundColor: '#fff', borderWidth: 1, borderColor: '#E2E8F0' },
+  injectionBtnActive: { backgroundColor: '#DBEAFE', borderColor: '#3B82F6', shadowColor: '#3B82F6', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 1 },
+  injectionBtnText: { fontSize: 15, fontWeight: '700', color: '#64748B' },
   injectionBtnTextActive: { color: '#1D4ED8' },
-  primingInfoText: { fontSize: 12, color: '#2563EB', fontStyle: 'italic' },
-  toggleContainer: { flexDirection: 'column', gap: 8 },
-  toggleBtn: { paddingVertical: 16, paddingHorizontal: 16, alignItems: 'center', borderRadius: 12, backgroundColor: '#F3F4F6', borderWidth: 1, borderColor: 'transparent' },
-  toggleBtnActive: { backgroundColor: '#EFF6FF', borderColor: '#3B82F6', shadowColor: '#2563EB', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 1 },
-  toggleText: { fontSize: 16, fontWeight: '700', color: '#6B7280', marginBottom: 4 },
+  primingInfoText: { fontSize: 13, color: '#3B82F6', fontStyle: 'italic', fontWeight: '500' },
+  
+  toggleContainer: { flexDirection: 'column', gap: 10 },
+  toggleBtn: { paddingVertical: 18, paddingHorizontal: 16, alignItems: 'center', borderRadius: 16, backgroundColor: '#F8FAFC', borderWidth: 1, borderColor: '#E2E8F0' },
+  toggleBtnActive: { backgroundColor: '#EFF6FF', borderColor: '#3B82F6', shadowColor: '#2563EB', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 8, elevation: 2 },
+  toggleText: { fontSize: 16, fontWeight: '800', color: '#64748B', marginBottom: 4 },
   toggleTextActive: { color: '#1E3A8A' },
-  brandText: { fontSize: 12, color: '#9CA3AF', fontWeight: '500' },
-  brandTextActive: { color: '#3B82F6' },
-  resultCard: { backgroundColor: '#fff', borderRadius: 24, padding: 24, shadowColor: '#2563EB', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.1, shadowRadius: 15, elevation: 4, borderWidth: 1, borderColor: '#BFDBFE' },
-  resultRow: { flexDirection: 'row', alignItems: 'center' },
-  resultIconBox: { width: 48, height: 48, borderRadius: 14, backgroundColor: '#F0F9FF', alignItems: 'center', justifyContent: 'center', marginRight: 16 },
-  resultTextContainer: { flex: 1 },
-  resultLabel: { fontSize: 14, color: '#6B7280', marginBottom: 4, fontWeight: '500' },
-  resultValue: { fontSize: 24, fontWeight: '800', color: '#1F2937' },
-  resultValueHighlight: { fontSize: 28, fontWeight: '800', color: '#2563EB' },
-  resultSubValue: { fontSize: 12, color: '#9CA3AF', marginTop: 2 },
-  divider: { height: 1, backgroundColor: '#F3F4F6', marginVertical: 16 },
-  infoBox: { marginTop: 20, backgroundColor: '#EFF6FF', padding: 16, borderRadius: 12, alignItems: 'center' },
-  infoText: { color: '#1E3A8A', fontSize: 15 },
-  warningBox: { marginTop: 16, backgroundColor: '#FFFBEB', padding: 16, borderRadius: 12, flexDirection: 'row', borderWidth: 1, borderColor: '#FEF08A' },
-  warningTextContainer: { flex: 1, marginLeft: 12 },
-  warningTitle: { color: '#B45309', fontWeight: '700', fontSize: 14, marginBottom: 4 },
-  warningText: { color: '#92400E', fontSize: 13, lineHeight: 18 }
+  brandText: { fontSize: 13, color: '#94A3B8', fontWeight: '600' },
+  brandTextActive: { color: '#3B82F6' }
 });

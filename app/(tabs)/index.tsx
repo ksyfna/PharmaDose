@@ -89,58 +89,20 @@ export default function PediatricScreen() {
   React.useEffect(() => { calculateDose(); }, [weight, selectedDrug, selectedConc]);
 
   return (
-    <LinearGradient colors={['#F5F3FF', '#EDE9FE']} style={styles.container}>
+    <LinearGradient colors={['#F8FAFC', '#F1F5F9']} style={styles.container}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.header}>
-            <View style={styles.iconContainer}><Baby color="#7C3AED" size={32} /></View>
+            <View style={styles.iconContainer}><Baby color="#8B5CF6" size={32} /></View>
             <Text style={styles.title}>Pediatric Dosing</Text>
           </View>
 
-          <View style={styles.card}>
-            <Text style={styles.label}>Patient Weight (kg)</Text>
-            <TextInput style={styles.input} keyboardType="decimal-pad" placeholder="e.g. 6.5" value={weight} onChangeText={setWeight} placeholderTextColor="#A1A1AA" />
-
-            <Text style={styles.label}>1. Select Medication</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.drugSelector}>
-              {PEDIATRIC_DRUGS.map((drug) => (
-                <TouchableOpacity key={drug.id} style={[styles.drugPill, selectedDrug.id === drug.id && styles.drugPillActive]} onPress={() => handleSelectDrug(drug)}>
-                  <Text style={[styles.drugPillText, selectedDrug.id === drug.id && styles.drugPillTextActive]}>{drug.name}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
-
-            <Text style={styles.label}>2. Select Concentration</Text>
-            <View style={styles.concContainer}>
-              {selectedDrug.concentrations.map((conc, idx) => (
-                <TouchableOpacity key={idx} style={[styles.concPill, selectedConc.mg === conc.mg && styles.concPillActive]} onPress={() => setSelectedConc(conc)}>
-                  <Droplet color={selectedConc.mg === conc.mg ? '#fff' : '#6B7280'} size={16} />
-                  <Text style={[styles.concPillText, selectedConc.mg === conc.mg && styles.drugPillTextActive]}>{conc.label}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-
-            <View style={styles.infoBox}>
-              <Activity color="#7C3AED" size={20} />
-              <View style={styles.infoTextContainer}>
-                <Text style={styles.infoTitle}>Rule: {selectedDrug.rule}</Text>
-                <Text style={styles.infoSubtitle}>Uses {selectedConc.mg}mg per {selectedConc.ml}ml</Text>
-              </View>
-            </View>
-
-            {selectedDrug.cpgInfo && (
-              <View style={[styles.infoBox, { marginTop: 12, backgroundColor: '#F0F9FF', borderColor: '#BAE6FD' }]}>
-                <Info color="#0284C7" size={20} />
-                <View style={styles.infoTextContainer}>
-                  <Text style={[styles.infoTitle, {color: '#0369A1'}]}>CPG Reference</Text>
-                  <Text style={[styles.infoSubtitle, {color: '#0284C7'}]}>{selectedDrug.cpgInfo}</Text>
-                </View>
-              </View>
-            )}
-          </View>
-
+          {/* HERO CARD (RESULTS) */}
           {result && (
-            <View style={[styles.resultCard, result.isHighVolume && styles.resultCardHighVol]}>
+            <LinearGradient 
+              colors={result.isHighVolume ? ['#FFFbeb', '#FEF3C7'] : ['#F5F3FF', '#EDE9FE']} 
+              style={[styles.heroCard, result.isHighVolume && styles.heroCardHighVol]}
+            >
               <Text style={styles.resultTitle}>Calculated Output</Text>
 
               {result.isCapped && (
@@ -155,28 +117,77 @@ export default function PediatricScreen() {
               <View style={styles.resultRow}>
                 <View style={styles.resultItem}>
                   <Text style={styles.resultLabel}>Dose</Text>
-                  <Text style={styles.resultValueHighlight}>{result.doseMg.toFixed(1)} <Text style={{fontSize: 14}}>mg</Text></Text>
+                  <Text style={[styles.resultValueHighlight, result.isHighVolume && {color: '#B45309'}]}>
+                    {result.doseMg.toFixed(1)} <Text style={{fontSize: 16, fontWeight: '600'}}>mg</Text>
+                  </Text>
                 </View>
+                <View style={styles.dividerVertical} />
                 <View style={styles.resultItem}>
                   <Text style={[styles.resultLabel, result.isHighVolume && {color: '#B45309'}]}>Volume</Text>
-                  <Text style={[styles.resultValueHighlight, result.isHighVolume && {color: '#D97706'}]}>{result.doseMl.toFixed(1)} <Text style={{fontSize: 14}}>ml</Text></Text>
+                  <Text style={[styles.resultValueHighlight, result.isHighVolume && {color: '#D97706'}]}>
+                    {result.doseMl.toFixed(1)} <Text style={{fontSize: 16, fontWeight: '600'}}>ml</Text>
+                  </Text>
                 </View>
               </View>
 
-              <View style={styles.divider} />
+              <View style={[styles.divider, result.isHighVolume && {backgroundColor: '#FDE68A'}]} />
               <View style={styles.freqRow}>
                 <Text style={styles.freqLabel}>Frequency:</Text>
-                <Text style={styles.freqValue}>{result.freq}</Text>
+                <Text style={[styles.freqValue, result.isHighVolume && {color: '#D97706'}]}>{result.freq}</Text>
               </View>
 
               {result.suggestion && (
-                <TouchableOpacity onPress={() => setSelectedConc(selectedDrug.concentrations[1])} style={[styles.warningBox, { backgroundColor: '#FFFBEB', borderColor: '#FDE68A', marginTop: 8 }]}>
+                <TouchableOpacity onPress={() => setSelectedConc(selectedDrug.concentrations[1])} style={styles.suggestionBtn}>
                   <AlertCircle color="#D97706" size={20} />
-                  <Text style={[styles.warningText, { color: '#92400E', flex: 1 }]}>{result.suggestion}</Text>
+                  <Text style={styles.suggestionBtnText}>{result.suggestion}</Text>
                 </TouchableOpacity>
               )}
-            </View>
+            </LinearGradient>
           )}
+
+          {/* INPUT CARD */}
+          <View style={styles.neumorphicCard}>
+            <Text style={styles.label}>Patient Weight (kg)</Text>
+            <TextInput style={styles.input} keyboardType="decimal-pad" placeholder="e.g. 6.5" value={weight} onChangeText={setWeight} placeholderTextColor="#94A3B8" />
+
+            <Text style={styles.label}>1. Select Medication</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.drugSelector}>
+              {PEDIATRIC_DRUGS.map((drug) => (
+                <TouchableOpacity key={drug.id} style={[styles.pill, selectedDrug.id === drug.id && styles.pillActive]} onPress={() => handleSelectDrug(drug)}>
+                  <Text style={[styles.pillText, selectedDrug.id === drug.id && styles.pillTextActive]}>{drug.name}</Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+
+            <Text style={styles.label}>2. Select Concentration</Text>
+            <View style={styles.concContainer}>
+              {selectedDrug.concentrations.map((conc, idx) => (
+                <TouchableOpacity key={idx} style={[styles.pill, selectedConc.mg === conc.mg && styles.pillActive]} onPress={() => setSelectedConc(conc)}>
+                  <Droplet color={selectedConc.mg === conc.mg ? '#fff' : '#64748B'} size={16} />
+                  <Text style={[styles.pillText, selectedConc.mg === conc.mg && styles.pillTextActive]}>{conc.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <View style={styles.infoBox}>
+              <Activity color="#8B5CF6" size={20} />
+              <View style={styles.infoTextContainer}>
+                <Text style={styles.infoTitle}>Rule: {selectedDrug.rule}</Text>
+                <Text style={styles.infoSubtitle}>Uses {selectedConc.mg}mg per {selectedConc.ml}ml</Text>
+              </View>
+            </View>
+
+            {selectedDrug.cpgInfo && (
+              <View style={[styles.infoBox, { marginTop: 12, backgroundColor: '#F0F9FF', borderColor: '#E0F2FE' }]}>
+                <Info color="#0EA5E9" size={20} />
+                <View style={styles.infoTextContainer}>
+                  <Text style={[styles.infoTitle, {color: '#0369A1'}]}>CPG Reference</Text>
+                  <Text style={[styles.infoSubtitle, {color: '#0284C7'}]}>{selectedDrug.cpgInfo}</Text>
+                </View>
+              </View>
+            )}
+          </View>
+
         </ScrollView>
       </KeyboardAvoidingView>
     </LinearGradient>
@@ -186,37 +197,41 @@ export default function PediatricScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   scrollContent: { padding: 20, paddingBottom: 40 },
-  header: { alignItems: 'center', marginBottom: 24, marginTop: 20 },
-  iconContainer: { width: 64, height: 64, borderRadius: 20, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', marginBottom: 12, shadowColor: '#7C3AED', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.15, shadowRadius: 12, elevation: 5 },
-  title: { fontSize: 28, fontWeight: '800', color: '#1F2937', letterSpacing: -0.5 },
-  subtitle: { fontSize: 16, color: '#6B7280', marginTop: 4 },
-  card: { backgroundColor: '#fff', borderRadius: 24, padding: 24, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.05, shadowRadius: 10, elevation: 3, marginBottom: 20 },
-  label: { fontSize: 15, fontWeight: '600', color: '#374151', marginBottom: 8 },
-  input: { backgroundColor: '#F3F4F6', borderRadius: 12, padding: 16, fontSize: 18, color: '#1F2937', marginBottom: 20, fontWeight: '500' },
-  drugSelector: { flexDirection: 'row', marginBottom: 20 },
-  drugPill: { paddingHorizontal: 16, paddingVertical: 10, backgroundColor: '#F3F4F6', borderRadius: 20, marginRight: 10 },
-  drugPillActive: { backgroundColor: '#7C3AED' },
-  drugPillText: { fontSize: 14, fontWeight: '600', color: '#4B5563' },
-  drugPillTextActive: { color: '#fff' },
-  concContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 20 },
-  concPill: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14, paddingVertical: 10, backgroundColor: '#F3F4F6', borderRadius: 16, gap: 6 },
-  concPillActive: { backgroundColor: '#6D28D9' },
-  concPillText: { fontSize: 13, fontWeight: '600', color: '#4B5563' },
-  infoBox: { flexDirection: 'row', backgroundColor: '#FAF5FF', padding: 16, borderRadius: 16, alignItems: 'center', borderWidth: 1, borderColor: '#E9D5FF' },
-  infoTextContainer: { marginLeft: 12, flex: 1 },
-  infoTitle: { color: '#5B21B6', fontWeight: '700', fontSize: 14 },
-  infoSubtitle: { color: '#7C3AED', fontSize: 12, marginTop: 2, lineHeight: 18 },
-  resultCard: { backgroundColor: '#fff', borderRadius: 24, padding: 24, shadowColor: '#7C3AED', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.1, shadowRadius: 15, elevation: 4, borderWidth: 1, borderColor: '#E9D5FF' },
-  resultCardHighVol: { borderColor: '#FDE68A', shadowColor: '#D97706' },
-  resultTitle: { fontSize: 18, fontWeight: '700', color: '#1F2937', marginBottom: 16, textAlign: 'center' },
-  resultRow: { flexDirection: 'row', justifyContent: 'space-around', marginBottom: 16 },
-  resultItem: { alignItems: 'center' },
-  resultLabel: { fontSize: 14, color: '#6B7280', marginBottom: 4, fontWeight: '500' },
-  resultValueHighlight: { fontSize: 32, fontWeight: '800', color: '#7C3AED' },
-  divider: { height: 1, backgroundColor: '#F3F4F6', marginVertical: 16 },
-  freqRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  freqLabel: { fontSize: 15, color: '#4B5563', fontWeight: '600' },
-  freqValue: { fontSize: 15, color: '#1F2937', fontWeight: '700' },
-  warningBox: { flexDirection: 'row', alignItems: 'center', padding: 12, borderRadius: 12, borderWidth: 1 },
-  warningText: { fontWeight: '600', fontSize: 13, marginLeft: 8, lineHeight: 18 },
+  header: { alignItems: 'center', marginBottom: 20, marginTop: 20 },
+  iconContainer: { width: 64, height: 64, borderRadius: 24, backgroundColor: '#fff', alignItems: 'center', justifyContent: 'center', marginBottom: 12, shadowColor: '#8B5CF6', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.15, shadowRadius: 20, elevation: 5 },
+  title: { fontSize: 26, fontWeight: '800', color: '#0F172A', letterSpacing: -0.5 },
+  
+  heroCard: { borderRadius: 28, padding: 24, shadowColor: '#8B5CF6', shadowOffset: { width: 0, height: 12 }, shadowOpacity: 0.2, shadowRadius: 24, elevation: 8, marginBottom: 24, borderWidth: 1, borderColor: '#DDD6FE' },
+  heroCardHighVol: { shadowColor: '#D97706', borderColor: '#FDE68A' },
+  resultTitle: { fontSize: 16, fontWeight: '700', color: '#475569', marginBottom: 20, textAlign: 'center', textTransform: 'uppercase', letterSpacing: 1 },
+  resultRow: { flexDirection: 'row', justifyContent: 'center', alignItems: 'center' },
+  resultItem: { alignItems: 'center', flex: 1 },
+  dividerVertical: { width: 1, height: '80%', backgroundColor: '#DDD6FE', marginHorizontal: 10 },
+  resultLabel: { fontSize: 13, color: '#64748B', marginBottom: 4, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5 },
+  resultValueHighlight: { fontSize: 38, fontWeight: '900', color: '#8B5CF6' },
+  divider: { height: 1, backgroundColor: '#DDD6FE', marginVertical: 20 },
+  freqRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  freqLabel: { fontSize: 15, color: '#64748B', fontWeight: '500' },
+  freqValue: { fontSize: 16, color: '#8B5CF6', fontWeight: '800' },
+  
+  neumorphicCard: { backgroundColor: '#fff', borderRadius: 28, padding: 24, shadowColor: '#64748B', shadowOffset: { width: 0, height: 8 }, shadowOpacity: 0.08, shadowRadius: 20, elevation: 4, marginBottom: 20, borderWidth: 1, borderColor: '#F1F5F9' },
+  label: { fontSize: 14, fontWeight: '500', color: '#64748B', marginBottom: 10 },
+  input: { backgroundColor: '#F8FAFC', borderRadius: 16, padding: 18, fontSize: 18, color: '#0F172A', marginBottom: 24, fontWeight: '600', borderWidth: 1, borderColor: '#E2E8F0' },
+  drugSelector: { flexDirection: 'row', marginBottom: 24 },
+  
+  pill: { paddingHorizontal: 18, paddingVertical: 12, backgroundColor: '#F8FAFC', borderRadius: 16, marginRight: 10, borderWidth: 1, borderColor: '#E2E8F0', flexDirection: 'row', alignItems: 'center', gap: 6 },
+  pillActive: { backgroundColor: '#8B5CF6', borderColor: '#8B5CF6', shadowColor: '#8B5CF6', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 2 },
+  pillText: { fontSize: 14, fontWeight: '600', color: '#475569' },
+  pillTextActive: { color: '#fff' },
+  concContainer: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 24 },
+  
+  infoBox: { flexDirection: 'row', backgroundColor: '#F8FAFC', padding: 18, borderRadius: 20, alignItems: 'center', borderWidth: 1, borderColor: '#E2E8F0' },
+  infoTextContainer: { marginLeft: 14, flex: 1 },
+  infoTitle: { color: '#334155', fontWeight: '700', fontSize: 14 },
+  infoSubtitle: { color: '#64748B', fontSize: 13, marginTop: 4, lineHeight: 18 },
+  
+  warningBox: { flexDirection: 'row', alignItems: 'center', padding: 14, borderRadius: 16, borderWidth: 1 },
+  warningText: { fontWeight: '600', fontSize: 13, marginLeft: 10, lineHeight: 18 },
+  suggestionBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFBEB', padding: 14, borderRadius: 16, borderWidth: 1, borderColor: '#FDE68A', marginTop: 16 },
+  suggestionBtnText: { color: '#92400E', fontWeight: '600', fontSize: 13, marginLeft: 10, flex: 1, lineHeight: 18 }
 });
