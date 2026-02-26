@@ -56,3 +56,11 @@ Ensure you have [Node.js](https://nodejs.org/) installed, then execute:
    ```bash
    git clone [https://github.com/yourusername/pharmadose-app.git](https://github.com/yourusername/pharmadose-app.git)
    cd pharmadose-app
+
+2. **Install Dependencies:**
+   ```bash
+   npm install
+
+3. **Launch Developer Environment:**
+   ```Bash
+   npx expo start
