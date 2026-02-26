@@ -18,6 +18,8 @@ export default function InsulinScreen() {
   const totalDailyUnits = dose + dailyPrimingWaste;
   
   const monthlyUnits = isValid ? totalDailyUnits * 30 : 0;
+  // Calculate exact unrounded pens
+  const exactPenfills = isValid ? (monthlyUnits / penfillSize).toFixed(2) : '0';
   // Use Math.ceil to ensure pharmacy always dispenses enough full pens
   const penfillsNeeded = isValid ? Math.ceil(monthlyUnits / penfillSize) : 0;
 
@@ -119,7 +121,7 @@ export default function InsulinScreen() {
                 <View style={styles.resultTextContainer}>
                   <Text style={styles.resultLabel}>Actual Penfills Required</Text>
                   <Text style={styles.resultValueHighlight}>{penfillsNeeded} <Text style={{fontSize: 16}}>pen(s)</Text></Text>
-                  <Text style={styles.resultSubValue}>Rounded up via Math.ceil()</Text>
+                  <Text style={styles.resultSubValue}>Exact Calculation: {exactPenfills} pens</Text>
                 </View>
               </View>
               
